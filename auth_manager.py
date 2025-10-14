@@ -4,7 +4,6 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2 import service_account
 
 class AuthManager(QObject):
     authenticated = pyqtSignal(bool)
@@ -17,21 +16,8 @@ class AuthManager(QObject):
         super().__init__()
         self.credentials = None
         self.token_file = 'config/token.json'
+        self.credentials_file = 'config/credentials.json'
         
-    def get_credentials_dict(self):
-        """Replace with your actual Google Cloud credentials"""
-        return {
-            "installed": {
-                "client_id": "736527399714-dsnqc8b8lbt88jpv8731q788r6qpr1i4.apps.googleusercontent.com",
-                "project_id": "soft-io-vn",
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": "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",
-                "redirect_uris": ["http://localhost"]
-            }
-        }
-    
     def authenticate(self):
         """Authenticate with Google APIs"""
         try:
@@ -48,12 +34,14 @@ class AuthManager(QObject):
                 if self.credentials and self.credentials.expired and self.credentials.refresh_token:
                     self.credentials.refresh(Request())
                 else:
-                    # Use embedded credentials instead of file
-                    credentials_dict = self.get_credentials_dict()
+                    if not os.path.exists(self.credentials_file):
+                        self.error_occurred.emit(
+                            "Credentials file not found. Please download from Google Cloud Console."
+                        )
+                        return
                     
-                    flow = InstalledAppFlow.from_client_config(
-                        credentials_dict, 
-                        self.SCOPES
+                    flow = InstalledAppFlow.from_client_secrets_file(
+                        self.credentials_file, self.SCOPES
                     )
                     self.credentials = flow.run_local_server(port=0)
                 
