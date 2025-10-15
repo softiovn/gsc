@@ -1,45 +1,23 @@
 @echo off
-chcp 65001 >nul
-title Search Analytics Pro
+title Search Console Desktop App
+echo ============================================
+echo    Starting Search Console Desktop App
+echo ============================================
+echo.
 
-echo ========================================
-echo   Search Analytics Pro - Starting...
-echo ========================================
-
-:: Check if Python is installed
-python --version >nul 2>&1
-if errorlevel 1 (
-    echo ERROR: Python is not installed or not in PATH
-    echo Please install Python and try again
+:: Check if PowerShell is available
+where powershell >nul 2>nul
+if %errorlevel% neq 0 (
+    echo [ERROR] PowerShell not found on this system.
     pause
     exit /b 1
 )
 
-:: Check if virtual environment exists, if not create it
-if not exist "venv" (
-    echo Creating virtual environment...
-    python -m venv venv
-)
+:: Run PowerShell setup and start script
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run.ps1"
 
-:: Activate virtual environment
-echo Activating virtual environment...
-call venv\Scripts\activate.bat
-
-:: Install/upgrade pip
-echo Upgrading pip...
-python -m pip install --upgrade pip
-
-:: Check if requirements are already installed, if not install them
-echo Installing required packages...
-pip install -r requirements.txt
-
-:: Run the main application
-echo ========================================
-echo   Starting Search Analytics Pro...
-echo ========================================
-python main.py
-
-:: Deactivate virtual environment when done
-deactivate
-
+echo.
+echo ============================================
+echo Application has exited.
+echo ============================================
 pause
