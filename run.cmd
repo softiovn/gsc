@@ -41,8 +41,23 @@ if not exist ".venv" (
     echo Virtual environment already exists.
 )
 
-:: --- Activate virtual environment ---
-call .venv\Scripts\activate.bat
+:: --- Detect virtual environment activation script ---
+set ACTIVATE_PATH=.venv\Scripts\activate.bat
+if not exist "%ACTIVATE_PATH%" (
+    echo [WARN] Default activation path not found.
+    echo Searching for activate.bat...
+    for /r ".venv" %%F in (activate.bat) do (
+        set ACTIVATE_PATH=%%F
+        goto :found_activate
+    )
+    echo [ERROR] Could not find activate.bat inside .venv!
+    pause
+    exit /b 1
+)
+:found_activate
+
+echo Activating virtual environment...
+call "%ACTIVATE_PATH%"
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to activate virtual environment.
     pause
