@@ -1,7 +1,7 @@
 @echo off
 REM ==========================================================
-REM run.bat - Simple setup and run script for Windows
-REM Equivalent to run.sh
+REM run.bat - Setup and run script for Windows
+REM Equivalent to run.sh, fixed to stay open after running
 REM ==========================================================
 
 setlocal enabledelayedexpansion
@@ -33,7 +33,7 @@ for %%P in (python python3) do (
 )
 
 echo %RED%Error: Python 3 not found.%RESET%
-exit /b 1
+goto :pauseexit
 
 :foundpython
 
@@ -43,7 +43,7 @@ if not exist ".venv" (
     %PYTHON_CMD% -m venv .venv
     if errorlevel 1 (
         echo %RED%Failed to create virtual environment.%RESET%
-        exit /b 1
+        goto :pauseexit
     )
     echo %GREEN%Virtual environment created.%RESET%
 ) else (
@@ -65,10 +65,19 @@ if exist requirements.txt (
 
 if errorlevel 1 (
     echo %RED%Dependency installation failed.%RESET%
-    exit /b 1
+    goto :pauseexit
 )
 echo %GREEN%All dependencies installed.%RESET%
 
 REM === Run the application ===
 echo %BLUE%Starting application...%RESET%
 %PYTHON_CMD% main.py
+
+REM === Keep window open after execution ===
+:pauseexit
+echo.
+echo %BLUE%==========================================%RESET%
+echo %GREEN%Script finished. Press any key to close...%RESET%
+echo %BLUE%==========================================%RESET%
+pause >nul
+exit /b 0
