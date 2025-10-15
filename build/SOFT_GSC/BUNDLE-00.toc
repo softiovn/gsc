@@ -1,0 +1,3 @@
+([('SOFT_GSC',
+   '/Users/tungpham/Documents/GitHub/gsc/dist/SOFT_GSC',
+   'EXECUTABLE')],)

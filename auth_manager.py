@@ -1,63 +1,83 @@
 import os
-import json
+import sys
 from PyQt5.QtCore import QObject, pyqtSignal
+from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+
+
+def resource_path(relative_path: str) -> str:
+    """Get absolute path to resource (works for PyInstaller onefile build)."""
+    try:
+        base_path = sys._MEIPASS  # PyInstaller temp dir
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 
 class AuthManager(QObject):
-    authenticated = pyqtSignal(bool)
+    # ✅ Define PyQt signals
+    authenticated = pyqtSignal(object)
     error_occurred = pyqtSignal(str)
-    
-    # Google Search Console API scope
-    SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly']
-    
-    def __init__(self):
-        super().__init__()
-        self.credentials = None
-        self.token_file = 'config/token.json'
-        self.credentials_file = 'config/credentials.json'
-        
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.credentials_path = resource_path("config/credentials.json")
+        self.token_path = resource_path("config/token.json")
+        self.scopes = ["https://www.googleapis.com/auth/webmasters.readonly"]
+        self.creds = None
+
     def authenticate(self):
-        """Authenticate with Google APIs"""
+        """Perform Google OAuth authentication."""
         try:
-            self.credentials = None
-            
-            # Token file stores user's access and refresh tokens
-            if os.path.exists(self.token_file):
-                self.credentials = Credentials.from_authorized_user_file(
-                    self.token_file, self.SCOPES
+            if os.path.exists(self.token_path):
+                self.creds = Credentials.from_authorized_user_file(
+                    self.token_path, self.scopes
                 )
-            
-            # If there are no valid credentials, let the user log in
-            if not self.credentials or not self.credentials.valid:
-                if self.credentials and self.credentials.expired and self.credentials.refresh_token:
-                    self.credentials.refresh(Request())
+
+            if not self.creds or not self.creds.valid:
+                if self.creds and self.creds.expired and self.creds.refresh_token:
+                    self.creds.refresh(Request())
                 else:
-                    if not os.path.exists(self.credentials_file):
-                        self.error_occurred.emit(
-                            "Credentials file not found. Please download from Google Cloud Console."
-                        )
-                        return
-                    
                     flow = InstalledAppFlow.from_client_secrets_file(
-                        self.credentials_file, self.SCOPES
+                        self.credentials_path, self.scopes
                     )
-                    self.credentials = flow.run_local_server(port=0)
-                
-                # Save credentials for next run
-                os.makedirs(os.path.dirname(self.token_file), exist_ok=True)
-                with open(self.token_file, 'w') as token:
-                    token.write(self.credentials.to_json())
-            
-            self.authenticated.emit(True)
-            
+                    self.creds = flow.run_local_server(port=0)
+
+                # Save token for reuse
+                with open(self.token_path, "w") as token:
+                    token.write(self.creds.to_json())
+
+            # ✅ Emit signal when authentication succeeds
+            self.authenticated.emit(self.creds)
+
         except Exception as e:
-            self.error_occurred.emit(f"Authentication failed: {str(e)}")
-            self.authenticated.emit(False)
-    
+            error_msg = f"Authentication failed: {e}"
+            print("❌", error_msg)
+            # ✅ Emit error signal
+            self.error_occurred.emit(error_msg)
+
     def get_credentials(self):
-        return self.credentials
-    
-    def is_authenticated(self):
-        return self.credentials is not None and self.credentials.valid
+        """Return current credentials."""
+        return self.creds
+
+
+# ===== Test run (standalone debug mode) =====
+if __name__ == "__main__":
+    from PyQt5.QtWidgets import QApplication
+    import sys
+
+    app = QApplication(sys.argv)
+
+    def on_auth_success(creds):
+        print("✅ Auth success. Token:", creds.token[:20] + "...")
+
+    def on_auth_error(msg):
+        print("❌ Error:", msg)
+
+    auth = AuthManager()
+    auth.authenticated.connect(on_auth_success)
+    auth.error_occurred.connect(on_auth_error)
+    auth.authenticate()
+
+    sys.exit(app.exec_())
