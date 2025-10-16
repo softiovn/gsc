@@ -1,2 +1,4 @@
 config/token.json
 config/credentials.json
+/.venv
+/.venv/bin
