@@ -3,3 +3,4 @@ config/credentials.json
 /.venv
 /.venv/bin
 /__pycache__
+/__pycache__/*
