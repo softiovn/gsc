@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 from googleapiclient.discovery import build
-from PyQt5.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, pyqtSignal
 from data_models import GSCDataPoint
 
 class GSCClient(QObject):

@@ -1,7 +1,7 @@
 import os
-from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout, QWidget, QTabWidget, 
+from PySide6.QtWidgets import (QMainWindow, QVBoxLayout, QWidget, QTabWidget, 
                             QMessageBox, QInputDialog, QStatusBar, QAction, QMenu)
-from PyQt5.QtCore import QSettings
+from PySide6.QtCore import QSettings
 from auth_manager import AuthManager
 from gsc_client import GSCClient
 from gemini_analyzer import GeminiAnalyzer

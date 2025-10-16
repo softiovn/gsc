@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QPushButton, QComboBox, QDateEdit, QProgressBar,
                             QGroupBox, QTextEdit, QTableWidget, QTableWidgetItem,
                             QHeaderView, QTabWidget, QSplitter)
-from PyQt5.QtCore import QDate, Qt
+from PySide6.QtCore import QDate, Qt
 import pandas as pd
 from datetime import datetime, timedelta
 

@@ -1,7 +1,7 @@
 import os
 import json
-from PyQt5.QtCore import QObject, pyqtSignal, QSettings
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QTextEdit
+from PySide6.QtCore import QObject, pyqtSignal, QSettings
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QTextEdit
 import google.generativeai as genai
 
 class ApiKeyDialog(QDialog):

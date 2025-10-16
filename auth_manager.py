@@ -1,6 +1,6 @@
 import os
 import sys
-from PyQt5.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, pyqtSignal
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -64,7 +64,7 @@ class AuthManager(QObject):
 
 # ===== Test run (standalone debug mode) =====
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication
     import sys
 
     app = QApplication(sys.argv)
