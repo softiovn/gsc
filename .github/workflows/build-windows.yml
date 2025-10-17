@@ -1,0 +1,45 @@
+name: Build SOFT_GSC Windows App
+
+on:
+  push:
+    branches: [Windows]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: 📥 Checkout source code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: 🏗️ Build SOFT_GSC.exe
+        run: |
+          pyinstaller --onefile main.py --name SOFT_GSC
+          echo "Build complete for SOFT_GSC v1.0.0"
+
+      - name: 📦 Rename output file with version
+        run: |
+          rename-item dist\SOFT_GSC.exe "SOFT_GSC_v1.0.0.exe"
+
+      - name: 🗜️ Create ZIP package
+        run: |
+          powershell Compress-Archive -Path dist\SOFT_GSC_v1.0.0.exe -DestinationPath dist\SOFT_GSC_v1.0.0.zip
+
+      - name: ⬆️ Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SOFT_GSC_Windows_Build
+          path: dist/SOFT_GSC_v1.0.0.zip
